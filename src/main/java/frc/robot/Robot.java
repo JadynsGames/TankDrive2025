@@ -119,10 +119,10 @@ public class Robot extends TimedRobot {
     rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    ps5_leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    ps5_leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    ps5_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    ps5_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_leftLeader.configure(ps5_globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_leftFollower.configure(ps5_leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_rightLeader.configure(ps5_rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_rightFollower.configure(ps5_rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Initialize joystick
     joystick = new XboxController(0);
@@ -168,6 +168,8 @@ public class Robot extends TimedRobot {
     double right = joystick.getRightY()*maxSpeed;
     double ps5_left = joyPs5Controller.getLeftY()*maxSpeed;
     double ps5_right = joyPs5Controller.getRightY()*maxSpeed;
+
+    
 
 
     /*
