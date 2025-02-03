@@ -54,6 +54,13 @@ public class Robot extends TimedRobot {
     SparkMaxConfig leftFollowerConfig = new SparkMaxConfig();
     SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
+    SparkMaxConfig ps5_globalConfig = new SparkMaxConfig();
+    SparkMaxConfig ps5_rightLeaderConfig = new SparkMaxConfig();
+    SparkMaxConfig ps5_leftFollowerConfig = new SparkMaxConfig();
+    SparkMaxConfig ps5_rightFollowerConfig = new SparkMaxConfig();
+
+    
+
     /*
      * Set parameters that will apply to all SPARKs. We will also use this as
      * the left leader config.
@@ -76,6 +83,26 @@ public class Robot extends TimedRobot {
     rightFollowerConfig
         .apply(globalConfig)
         .follow(rightLeader);
+
+
+    ps5_globalConfig
+        .smartCurrentLimit(50)
+        .idleMode(IdleMode.kBrake);
+
+    // Apply the global config and invert since it is on the opposite side
+    ps5_rightLeaderConfig
+        .apply(ps5_globalConfig)
+        .inverted(true);
+
+    // Apply the global config and set the leader SPARK for follower mode
+    ps5_leftFollowerConfig
+        .apply(ps5_globalConfig)
+        .follow(ps5_leftLeader);
+
+    // Apply the global config and set the leader SPARK for follower mode
+    ps5_rightFollowerConfig
+        .apply(ps5_globalConfig)
+        .follow(ps5_rightLeader);
 
     /*
      * Apply the configuration to the SPARKs.
@@ -107,6 +134,9 @@ public class Robot extends TimedRobot {
     // Display the applied output of the left and right side onto the dashboard
     SmartDashboard.putNumber("Left Out", leftLeader.getAppliedOutput());
     SmartDashboard.putNumber("Right Out", rightLeader.getAppliedOutput());
+
+    SmartDashboard.putNumber("Left Out", ps5_leftLeader.getAppliedOutput());
+    SmartDashboard.putNumber("Right Out", ps5_rightLeader.getAppliedOutput());
   }
 
   @Override
