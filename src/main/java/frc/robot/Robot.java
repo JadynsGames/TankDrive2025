@@ -15,12 +15,23 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.wpilibj.PS5Controller;
+
 public class Robot extends TimedRobot {
   SparkMax leftLeader;
   SparkMax leftFollower;
   SparkMax rightLeader;
   SparkMax rightFollower;
+
+  SparkMax ps5_leftLeader;
+  SparkMax ps5_leftFollower;
+  SparkMax ps5_rightLeader;
+  SparkMax ps5_rightFollower;
+
+
   XboxController joystick;
+  PS5Controller joyPs5Controller;
+
 
   public Robot() {
     // Initialize the SPARKs
@@ -28,6 +39,11 @@ public class Robot extends TimedRobot {
     leftFollower = new SparkMax(17, MotorType.kBrushed);
     rightLeader = new SparkMax(15, MotorType.kBrushed);
     rightFollower = new SparkMax(11, MotorType.kBrushed);
+
+    ps5_leftLeader = new SparkMax(25, MotorType.kBrushed);
+    ps5_leftFollower = new SparkMax(17, MotorType.kBrushed);
+    ps5_rightLeader = new SparkMax(15, MotorType.kBrushed);
+    ps5_rightFollower = new SparkMax(11, MotorType.kBrushed);
 
     /*
      * Create new SPARK MAX configuration objects. These will store the
@@ -76,8 +92,14 @@ public class Robot extends TimedRobot {
     rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    ps5_leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ps5_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     // Initialize joystick
     joystick = new XboxController(0);
+    joyPs5Controller = new PS5Controller(0);
   }
 
   @Override
@@ -114,6 +136,9 @@ public class Robot extends TimedRobot {
     // DIFFERENTIAL
     double left = joystick.getLeftY()*maxSpeed;
     double right = joystick.getRightY()*maxSpeed;
+    double ps5_left = joyPs5Controller.getLeftY()*maxSpeed;
+    double ps5_right = joyPs5Controller.getRightY()*maxSpeed;
+
 
     /*
      * Apply values to left and right side. We will only need to set the leaders
@@ -126,6 +151,9 @@ public class Robot extends TimedRobot {
     // DIFFERENTIAL
     leftLeader.set(left);
     rightLeader.set(right);
+
+    ps5_leftLeader.set(ps5_left);
+    ps5_rightLeader.set(ps5_right);
   }
 
   @Override
