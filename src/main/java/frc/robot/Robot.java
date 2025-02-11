@@ -8,6 +8,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
+
+import org.photonvision.PhotonCamera;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
@@ -25,6 +28,7 @@ public class Robot extends TimedRobot {
   SparkMax rightFollower;
  // XboxController joystick;
   PS5Controller joystick;
+  PhotonCamera camera;
   
   //private RobotContainer m_robotContainer;
  // class
@@ -40,6 +44,7 @@ public class Robot extends TimedRobot {
     leftFollower = new SparkMax(17, MotorType.kBrushed);
     rightLeader = new SparkMax(15, MotorType.kBrushed);
     rightFollower = new SparkMax(11, MotorType.kBrushed);
+    camera = new PhotonCamera("Cam 1");
 
     /*
      * Create new SPARK MAX configuration objects. These will store the
@@ -136,7 +141,42 @@ public class Robot extends TimedRobot {
      * Apply values to left and right side. We will only need to set the leaders
      * since the other motors are in follower mode.
      */
-    // ARCADE
+
+        // Calculate drivetrain commands from Joystick values
+
+      // Read in relevant data from the Camera
+      boolean targetVisible = false;
+      double targetYaw = 0.0;
+      var results = camera.getAllUnreadResults();
+      if (!results.isEmpty()) {
+          // Camera processed a new frame since last
+          // Get the last one in the list.
+          var result = results.get(results.size() - 1);
+          if (result.hasTargets()) {
+              // At least one AprilTag was seen by the camera
+              for (var target : result.getTargets()) {
+                  if (target.getFiducialId() == 7 || true) {
+                      // Found Tag 7, record its information
+                      targetYaw = target.getYaw();
+                      targetVisible = true;
+                  }
+              }
+          }
+      }
+
+      // Auto-align when requested
+      if (joystick.getR1Button() && targetVisible) {
+          // Driver wants auto-alignment to tag 7
+          // And, tag 7 is in sight, so we can turn toward it.
+          // Override the driver's turn command with an automatic one that turns toward the tag.
+          rotation = -1.0 * targetYaw * maxRotation / 30;
+      }
+
+      // Command drivetrain motors based on target speed
+
+      // Put debug information to the dashboard
+      SmartDashboard.putBoolean("Vision Target Visible", targetVisible);
+      // ARCADE
     leftLeader.set(forward + rotation);
     rightLeader.set(forward - rotation);
 
@@ -144,7 +184,7 @@ public class Robot extends TimedRobot {
     // leftLeader.set(left);
     // rightLeader.set(right);
 
-    // DUMPSTER
+        // DUMPSTER
     if(joystick.getR2ButtonPressed()){
       dumpster.activateCoral(0.6);
     }else if(joystick.getR2ButtonReleased()){
