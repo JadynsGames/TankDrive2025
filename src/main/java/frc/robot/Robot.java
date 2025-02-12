@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Dumpster;
 import edu.wpi.first.wpilibj.PS5Controller;
-import edu.wpi.first.wpilibj.XboxController;
+//import edu.wpi.first.wpilibj.XboxController;
 
 public class Robot extends TimedRobot {
   SparkMax leftLeader;
@@ -28,7 +28,8 @@ public class Robot extends TimedRobot {
   SparkMax rightFollower;
  // XboxController joystick;
   PS5Controller joystick;
-  PhotonCamera camera;
+  PhotonCamera frontCamera;
+  PhotonCamera backCamera;
   
   //private RobotContainer m_robotContainer;
  // class
@@ -44,7 +45,9 @@ public class Robot extends TimedRobot {
     leftFollower = new SparkMax(17, MotorType.kBrushed);
     rightLeader = new SparkMax(15, MotorType.kBrushed);
     rightFollower = new SparkMax(11, MotorType.kBrushed);
-    camera = new PhotonCamera("Cam 1");
+    frontCamera = new PhotonCamera("Cam 1");
+    backCamera = new PhotonCamera("Cam 2");
+
 
     /*
      * Create new SPARK MAX configuration objects. These will store the
@@ -145,37 +148,61 @@ public class Robot extends TimedRobot {
         // Calculate drivetrain commands from Joystick values
 
       // Read in relevant data from the Camera
-      boolean targetVisible = false;
-      double targetYaw = 0.0;
-      var results = camera.getAllUnreadResults();
-      if (!results.isEmpty()) {
+      boolean reefVisible = false, sourceVisible = false;
+      double sourceYaw = 0.0, reefYaw = 0.0;
+      var results1 = frontCamera.getAllUnreadResults();
+      var results2 = backCamera.getAllUnreadResults();
+      if (!results1.isEmpty()) {
           // Camera processed a new frame since last
           // Get the last one in the list.
-          var result = results.get(results.size() - 1);
+          var result = results1.get(results1.size() - 1);
           if (result.hasTargets()) {
               // At least one AprilTag was seen by the camera
               for (var target : result.getTargets()) {
-                  if (target.getFiducialId() == 7 || true) {
-                      // Found Tag 7, record its information
-                      targetYaw = target.getYaw();
-                      targetVisible = true;
+                int id = target.getFiducialId();
+                  if (id == 1 || id == 2 || id == 12 || id == 13) {
+                      sourceYaw = target.getYaw();
+                      sourceVisible = true;
+                  } else if((id >= 6 && id <= 11) || (id >= 17 && id <= 22)){
+                      reefYaw = target.getYaw();
+                      reefVisible = true;
+                  }
+              }
+          }
+      } else if (!results2.isEmpty()) {
+        // Camera processed a new frame since last
+          // Get the last one in the list.
+          var result = results2.get(results2.size() - 1);
+          if (result.hasTargets()) {
+              // At least one AprilTag was seen by the camera
+              for (var target : result.getTargets()) {
+                int id = target.getFiducialId();
+                  if (id == 1 || id == 2 || id == 12 || id == 13) {
+                      sourceYaw = target.getYaw();
+                      sourceVisible = true;
+                  } else if((id >= 6 && id <= 11) || (id >= 17 && id <= 22)){
+                      reefYaw = target.getYaw();
+                      reefVisible = true;
                   }
               }
           }
       }
 
       // Auto-align when requested
-      if (joystick.getR1Button() && targetVisible) {
-          // Driver wants auto-alignment to tag 7
-          // And, tag 7 is in sight, so we can turn toward it.
+      if (joystick.getR1Button() && reefVisible) {
           // Override the driver's turn command with an automatic one that turns toward the tag.
-          rotation = -1.0 * targetYaw * maxRotation / 30;
+          rotation = -1.0 * reefYaw * maxRotation / 30;
+          System.out.println("Reef yaw:" + reefYaw);
+      } 
+      if (joystick.getL1Button() && sourceVisible){
+        rotation = -1.0 * sourceYaw * maxRotation / 30;
+        System.out.println("Source yaw:" + sourceYaw);
       }
 
       // Command drivetrain motors based on target speed
 
       // Put debug information to the dashboard
-      SmartDashboard.putBoolean("Vision Target Visible", targetVisible);
+      SmartDashboard.putBoolean("Vision Target Visible", sourceVisible);
       // ARCADE
     leftLeader.set(forward + rotation);
     rightLeader.set(forward - rotation);
