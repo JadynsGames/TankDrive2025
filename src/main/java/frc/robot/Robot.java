@@ -191,11 +191,11 @@ public class Robot extends TimedRobot {
       // Auto-align when requested
       if (joystick.getR1Button() && reefVisible) {
           // Override the driver's turn command with an automatic one that turns toward the tag.
-          rotation = -1.0 * reefYaw * maxRotation / 30;
+          rotation = -1.0 * reefYaw * (maxRotation / 10);
           System.out.println("Reef yaw:" + reefYaw);
       } 
       if (joystick.getL1Button() && sourceVisible){
-        rotation = -1.0 * sourceYaw * maxRotation / 30;
+        rotation = -1.0 * sourceYaw * (maxRotation / 10);
         System.out.println("Source yaw:" + sourceYaw);
       }
 
